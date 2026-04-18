@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "308659276805",
+    "project_id": "joyfulaitravel",
+    "storage_bucket": "joyfulaitravel.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:308659276805:android:860eac68c72b77243e206c",
+        "android_client_info": {
+          "package_name": "com.joyful.travel.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA77xSOi67j2uw4Gxp0XKQK0kIOEra_-Ho"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
