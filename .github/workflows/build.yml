@@ -16,35 +16,44 @@ jobs:
         with:
           flutter-version: '3.x'
 
-      - name: Master Pro Level Build
+      - name: The Ultimate Fix Build
         run: |
-          # 1. Sab kuch fresh start
-          rm -rf android
-          flutter create .
+          # 1. Asli code aur chabi ko safe jagah (backup) rakhna
+          find . -name "main.dart" -exec cp {} ./backup_main.dart \;
+          find . -name "google-services.json" -exec cp {} ./backup_google-services.json \;
 
-          # 2. JSON file ko dhoondh kar sahi jagah rakhna
-          find . -name "google-services.json" -exec cp {} android/app/ \;
+          # 2. Puraana sab kachra aur error wale folders delete karna
+          rm -rf joyful_travel_app android clean_app
 
-          # 3. MAGIC STEP: JSON file ke andar se ASLI package name padhna
+          # 3. Ekdum fresh app banana (Sirf chote aksharon wale naam ke sath)
+          flutter create joyful_travel_app --org com.joyful
+
+          # 4. Apna code aur chabi naye app mein daalna
+          cp ./backup_main.dart joyful_travel_app/lib/main.dart
+          cp ./backup_google-services.json joyful_travel_app/android/app/google-services.json
+
+          # 5. Naye folder mein jana
+          cd joyful_travel_app
+
+          # 6. JSON file se asli naam nikalna aur set karna (ID mismatch error khatam)
           ASLI_NAAM=$(grep -o '"package_name": *"[^"]*"' android/app/google-services.json | cut -d'"' -f4 | head -n 1)
-          echo "Firebase se ye naam mila hai: $ASLI_NAAM"
-
-          # 4. App ko bilkul usi ASLI naam ke hisaab se set karna (Zero Error Guarantee)
           sed -i "s/applicationId = \".*\"/applicationId = \"$ASLI_NAAM\"/g" android/app/build.gradle.kts
           sed -i "s/namespace = \".*\"/namespace = \"$ASLI_NAAM\"/g" android/app/build.gradle.kts
 
-          # 5. Black Screen Fix (Internet Permission)
+          # 7. Internet Permission (Black screen fix)
           sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
 
-          # 6. Firebase Plugins ko set karna
+          # 8. Firebase Plugins lagana
           sed -i '/plugins {/a \    id("com.google.gms.google-services") version "4.4.1" apply false' android/settings.gradle.kts
           sed -i '/plugins {/a \    id("com.google.gms.google-services")' android/app/build.gradle.kts
 
-          # 7. Final APK Banana
-          flutter pub get
+          # 9. Zaroori packages automatic download karna (YAML file theek karne ka jhanjhat khatam)
+          flutter pub add firebase_core firebase_auth cloud_firestore google_fonts cupertino_icons
+
+          # 10. APK Build karna
           flutter build apk --release
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Joyful-Travel-App-Master-Pro
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: Joyful-Travel-App-Final-Pro
+          path: joyful_travel_app/build/app/outputs/flutter-apk/app-release.apk
