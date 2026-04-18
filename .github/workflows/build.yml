@@ -18,24 +18,26 @@ jobs:
 
       - name: Master Build Process
         run: |
-          # 1. Purana kachra saaf karke ekdum naya Android system banana
+          # 1. Purana kachra saaf karna
           rm -rf android
-          flutter create . --org com.joyful
+          
+          # 2. Naya project STRICTLY chote aksharon wale naam ke sath banana
+          flutter create --project-name=joyful_travel_app . --org com.joyful
 
-          # 2. Firebase ki chabi (json) dhoondh kar sahi jagah rakhna
+          # 3. Firebase ki chabi sahi jagah rakhna
           find . -name "google-services.json" -exec cp {} android/app/ \;
 
-          # 3. Firebase ID Match karna naye (.kts) system mein
+          # 4. App ID Match karna
           sed -i 's/applicationId = ".*"/applicationId = "com.joyful.travelapp"/g' android/app/build.gradle.kts
 
-          # 4. Internet Permission daalna (Taki black screen hamesha ke liye khatam ho)
+          # 5. Internet Permission daalna (Black screen rokne ke liye)
           sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
 
-          # 5. Firebase Plugins ko naye (.kts) format mein add karna
+          # 6. Firebase Plugins ko naye format mein lagana
           sed -i '/plugins {/a \    id("com.google.gms.google-services") version "4.4.1" apply false' android/settings.gradle.kts
           sed -i '/plugins {/a \    id("com.google.gms.google-services")' android/app/build.gradle.kts
 
-          # 6. Final Build APK
+          # 7. Final Build
           flutter pub get
           flutter build apk --release
 
