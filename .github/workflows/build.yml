@@ -15,11 +15,26 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.x'
-      - run: cd joyful_travel_app && flutter clean
-      - run: cd joyful_travel_app && rm -f pubspec.lock
-      - run: cd joyful_travel_app && flutter pub get
-      - run: cd joyful_travel_app && flutter build apk --release
+      
+      # 1. Naya fresh project banana
+      - run: flutter create clean_app --project-name=joyful_travel_app --org com.joyful
+      
+      # 2. Asli code aur chabi ko naye project mein shift karna
+      - run: |
+          cp joyful_travel_app/lib/main.dart clean_app/lib/
+          cp joyful_travel_app/pubspec.yaml clean_app/
+          cp joyful_travel_app/android/app/google-services.json clean_app/android/app/ || true
+      
+      # 3. Permissions aur ID theek karna
+      - run: |
+          cd clean_app
+          sed -i 's/com.example.joyful_travel_app/com.joyful.travelapp/g' android/app/build.gradle
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
+          flutter pub get
+          flutter build apk --release
+      
+      # 4. APK upload karna
       - uses: actions/upload-artifact@v4
         with:
-          name: release-apk
-          path: joyful_travel_app/build/app/outputs/flutter-apk/app-release.apk
+          name: joyful-travel-final-apk
+          path: clean_app/build/app/outputs/flutter-apk/app-release.apk
