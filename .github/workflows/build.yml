@@ -16,25 +16,29 @@ jobs:
         with:
           flutter-version: '3.x'
 
-      # 1. Bilkul naya project builder ke main folder mein banana
-      - run: flutter create . --project-name=joyful_travel_app --org com.joyful
+      - name: Master Build Process
+        run: |
+          # 1. Purana kachra saaf karke ekdum naya Android system banana
+          rm -rf android
+          flutter create . --org com.joyful
 
-      # 2. Asli files ko naye project mein overwrite karna
-      - run: |
-          cp joyful_travel_app/lib/main.dart lib/main.dart
-          cp joyful_travel_app/pubspec.yaml pubspec.yaml
+          # 2. Firebase ki chabi (json) dhoondh kar sahi jagah rakhna
           find . -name "google-services.json" -exec cp {} android/app/ \;
 
-      # 3. Permissions, Firebase aur ID theek karna
-      - run: |
-          sed -i 's/com.example.joyful_travel_app/com.joyful.travelapp/g' android/app/build.gradle
+          # 3. Firebase ID Match karna naye (.kts) system mein
+          sed -i 's/applicationId = ".*"/applicationId = "com.joyful.travelapp"/g' android/app/build.gradle.kts
+
+          # 4. Internet Permission daalna (Taki black screen hamesha ke liye khatam ho)
           sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
-          sed -i '/dependencies {/a \        classpath "com.google.gms:google-services:4.3.15"' android/build.gradle
-          echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
+
+          # 5. Firebase Plugins ko naye (.kts) format mein add karna
+          sed -i '/plugins {/a \    id("com.google.gms.google-services") version "4.4.1" apply false' android/settings.gradle.kts
+          sed -i '/plugins {/a \    id("com.google.gms.google-services")' android/app/build.gradle.kts
+
+          # 6. Final Build APK
           flutter pub get
           flutter build apk --release
 
-      # 4. Final APK ready karna
       - uses: actions/upload-artifact@v4
         with:
           name: Joyful-Travel-App-Final
