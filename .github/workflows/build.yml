@@ -15,30 +15,27 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.x'
-      
-      # 1. Naya fresh project banana
-      - run: flutter create clean_app --project-name=joyful_travel_app --org com.joyful
-      
-      # 2. Files copy karna (Dhyan se har rasta check karega)
+
+      # 1. Bilkul naya project builder ke main folder mein banana
+      - run: flutter create . --project-name=joyful_travel_app --org com.joyful
+
+      # 2. Asli files ko naye project mein overwrite karna
       - run: |
-          cp joyful_travel_app/lib/main.dart clean_app/lib/main.dart
-          cp joyful_travel_app/pubspec.yaml clean_app/pubspec.yaml
-          # Ye line file ko har jagah dhoondh kar sahi jagah rakhegi
-          find . -name "google-services.json" -exec cp {} clean_app/android/app/ \;
-      
-      # 3. Permissions aur Build
+          cp joyful_travel_app/lib/main.dart lib/main.dart
+          cp joyful_travel_app/pubspec.yaml pubspec.yaml
+          find . -name "google-services.json" -exec cp {} android/app/ \;
+
+      # 3. Permissions, Firebase aur ID theek karna
       - run: |
-          cd clean_app
           sed -i 's/com.example.joyful_travel_app/com.joyful.travelapp/g' android/app/build.gradle
           sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
-          # Firebase connection fix
           sed -i '/dependencies {/a \        classpath "com.google.gms:google-services:4.3.15"' android/build.gradle
           echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
           flutter pub get
           flutter build apk --release
-      
-      # 4. APK upload
+
+      # 4. Final APK ready karna
       - uses: actions/upload-artifact@v4
         with:
-          name: joyful-travel-final
-          path: clean_app/build/app/outputs/flutter-apk/app-release.apk
+          name: Joyful-Travel-App-Final
+          path: build/app/outputs/flutter-apk/app-release.apk
