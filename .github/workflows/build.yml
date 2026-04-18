@@ -16,32 +16,35 @@ jobs:
         with:
           flutter-version: '3.x'
 
-      - name: Master Build Process
+      - name: Master Pro Level Build
         run: |
-          # 1. Purana kachra saaf karna
+          # 1. Sab kuch fresh start
           rm -rf android
-          
-          # 2. Naya project STRICTLY chote aksharon wale naam ke sath banana
-          flutter create --project-name=joyful_travel_app . --org com.joyful
+          flutter create .
 
-          # 3. Firebase ki chabi sahi jagah rakhna
+          # 2. JSON file ko dhoondh kar sahi jagah rakhna
           find . -name "google-services.json" -exec cp {} android/app/ \;
 
-          # 4. App ID Match karna
-          sed -i 's/applicationId = ".*"/applicationId = "com.joyful.travelapp"/g' android/app/build.gradle.kts
+          # 3. MAGIC STEP: JSON file ke andar se ASLI package name padhna
+          ASLI_NAAM=$(grep -o '"package_name": *"[^"]*"' android/app/google-services.json | cut -d'"' -f4 | head -n 1)
+          echo "Firebase se ye naam mila hai: $ASLI_NAAM"
 
-          # 5. Internet Permission daalna (Black screen rokne ke liye)
+          # 4. App ko bilkul usi ASLI naam ke hisaab se set karna (Zero Error Guarantee)
+          sed -i "s/applicationId = \".*\"/applicationId = \"$ASLI_NAAM\"/g" android/app/build.gradle.kts
+          sed -i "s/namespace = \".*\"/namespace = \"$ASLI_NAAM\"/g" android/app/build.gradle.kts
+
+          # 5. Black Screen Fix (Internet Permission)
           sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
 
-          # 6. Firebase Plugins ko naye format mein lagana
+          # 6. Firebase Plugins ko set karna
           sed -i '/plugins {/a \    id("com.google.gms.google-services") version "4.4.1" apply false' android/settings.gradle.kts
           sed -i '/plugins {/a \    id("com.google.gms.google-services")' android/app/build.gradle.kts
 
-          # 7. Final Build
+          # 7. Final APK Banana
           flutter pub get
           flutter build apk --release
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Joyful-Travel-App-Final
+          name: Joyful-Travel-App-Master-Pro
           path: build/app/outputs/flutter-apk/app-release.apk
