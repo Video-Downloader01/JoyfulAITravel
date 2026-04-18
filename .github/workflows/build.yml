@@ -19,22 +19,26 @@ jobs:
       # 1. Naya fresh project banana
       - run: flutter create clean_app --project-name=joyful_travel_app --org com.joyful
       
-      # 2. Asli code aur chabi ko naye project mein shift karna
+      # 2. Files copy karna (Dhyan se har rasta check karega)
       - run: |
-          cp joyful_travel_app/lib/main.dart clean_app/lib/
-          cp joyful_travel_app/pubspec.yaml clean_app/
-          cp joyful_travel_app/android/app/google-services.json clean_app/android/app/ || true
+          cp joyful_travel_app/lib/main.dart clean_app/lib/main.dart
+          cp joyful_travel_app/pubspec.yaml clean_app/pubspec.yaml
+          # Ye line file ko har jagah dhoondh kar sahi jagah rakhegi
+          find . -name "google-services.json" -exec cp {} clean_app/android/app/ \;
       
-      # 3. Permissions aur ID theek karna
+      # 3. Permissions aur Build
       - run: |
           cd clean_app
           sed -i 's/com.example.joyful_travel_app/com.joyful.travelapp/g' android/app/build.gradle
           sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
+          # Firebase connection fix
+          sed -i '/dependencies {/a \        classpath "com.google.gms:google-services:4.3.15"' android/build.gradle
+          echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
           flutter pub get
           flutter build apk --release
       
-      # 4. APK upload karna
+      # 4. APK upload
       - uses: actions/upload-artifact@v4
         with:
-          name: joyful-travel-final-apk
+          name: joyful-travel-final
           path: clean_app/build/app/outputs/flutter-apk/app-release.apk
